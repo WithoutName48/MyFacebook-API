@@ -1463,70 +1463,238 @@ Behavior:
 
 - Creates a comment with the provided content and appropriate parent/post relationship.
 
-DELETE /post/comments/deleteComment
-req:
-    - token 
-    - id_comment
-res:
-    if token not valid (isn't in UserToken):
-        error: token not valid  
-    if id_comment not found in database
-        error: comment with this id doesn't exist
-    success:
-        delete this comment and all other comments that are descendants
+## DELETE `/post/comments/deleteComment`
 
-POST /post/comments/changeCommentReactions
-req:
-    - token
-    - id_comment
-    - reaction ("like" or "love" or "care" or "haha" or "wow" or "sad" or "angry")
-res:
-    if token not valid (isn't in UserToken):
-        error: token not valid  
-    if id_comment not found in database
-        error: comment with this id doesn't exist
-    success:
-        update CommentReactions. Add +1 to appropriate field
-        update UserCommentsReacions. set True to the appropriate field, with id_comment from req
+### Request
 
+```json
+{
+  "token": "string",
+  "id_comment": "number"
+}
+```
 
+### Response
 
+#### Error
 
+- Invalid token
 
+```json
+{
+  "error": "token not valid"
+}
+```
 
+- Comment not found
 
+```json
+{
+  "error": "comment with this id doesn't exist"
+}
+```
 
+#### Success
 
+```json
+{
+  "message": "comment deleted successfully"
+}
+```
 
-GET /search/postsFeed
-req:
-    - token
-res:
-    if token not valid (isn't in UserToken):
-        error: token not valid 
-    success:
-        return array (of length 50) of randomly chosen indexes of posts from database
+Behavior:
 
-GET /search/postsUser
-req:
-    - token
-    - id_user
-res:
-    if token not valid (isn't in UserToken):
-        error: token not valid 
-    if id_user not found in database
-        error: user with this id doesn't exist
-    success:
-        return array (of length 50) of indexes of posts from database that belong to this id_user and are sorted in descending order based on date_created
+- Deletes the specified comment.
+- Deletes all descendant comments recursively.
 
-GET /search/search
-req:
-    - token
-    - input
-res:
-    if token not valid (isn't in UserToken):
-        error: token not valid 
-    success:
-        return array:
-        first ten elements are user_id of user whose input is a prefix of either name or surname or prefix of `${name} ${surname}`
-        next 20 elements are post_id of posts which content has somewhere a substring of input
+---
+
+## POST `/post/comments/changeCommentReactions`
+
+### Request
+
+```json
+{
+  "token": "string",
+  "id_comment": "number",
+  "reaction": "like | love | care | haha | wow | sad | angry"
+}
+```
+
+### Response
+
+#### Error
+
+- Invalid token
+
+```json
+{
+  "error": "token not valid"
+}
+```
+
+- Comment not found
+
+```json
+{
+  "error": "comment with this id doesn't exist"
+}
+```
+
+#### Success
+
+```json
+{
+  "message": "reaction added successfully"
+}
+```
+
+Behavior:
+
+- Updates `CommentReactions` by incrementing the selected reaction count by `1`.
+- Updates `UserCommentsReactions` by setting the selected reaction field to `true` for the specified comment.
+
+---
+
+# Search
+
+## GET `/search/postsFeed`
+
+### Request
+
+```json
+{
+  "token": "string"
+}
+```
+
+### Response
+
+#### Error
+
+- Invalid token
+
+```json
+{
+  "error": "token not valid"
+}
+```
+
+#### Success
+
+```json
+[
+  123,
+  456,
+  789
+]
+```
+
+- Returns an array containing **50 randomly selected post IDs** from the database.
+
+---
+
+## GET `/search/postsUser`
+
+### Request
+
+```json
+{
+  "token": "string",
+  "id_user": "number"
+}
+```
+
+### Response
+
+#### Error
+
+- Invalid token
+
+```json
+{
+  "error": "token not valid"
+}
+```
+
+- User not found
+
+```json
+{
+  "error": "user with this id doesn't exist"
+}
+```
+
+#### Success
+
+```json
+[
+  123,
+  456,
+  789
+]
+```
+
+- Returns up to **50 post IDs** belonging to the specified user.
+- Posts are sorted in **descending order by `date_created`**.
+
+---
+
+## GET `/search/search`
+
+### Request
+
+```json
+{
+  "token": "string",
+  "input": "string"
+}
+```
+
+### Response
+
+#### Error
+
+- Invalid token
+
+```json
+{
+  "error": "token not valid"
+}
+```
+
+#### Success
+
+```json
+{
+  "users": [1, 2, 3, 4, 5],
+  "posts": [101, 102, 103, 104]
+}
+```
+
+Behavior:
+
+- Returns up to **10 user IDs** where `input` is a prefix of:
+  - `name`
+  - `surname`
+  - `"name surname"`
+
+- Returns up to **20 post IDs** where the post content contains `input` as a substring.
+
+Alternative flat-array representation (matching the original specification):
+
+```json
+[
+  "user_id_1",
+  "user_id_2",
+  "...",
+  "user_id_10",
+  "post_id_1",
+  "post_id_2",
+  "...",
+  "post_id_20"
+]
+```
+
+- The first 10 elements are matching user IDs.
+- The next 20 elements are matching post IDs.
