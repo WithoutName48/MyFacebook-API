@@ -1,20 +1,21 @@
 {
-  "name": "myfacebook-api",
+  "name": "myfacebook",
   "version": "1.0.0",
   "description": "",
-  "homepage": "https://github.com/WithoutName48/MyFacebook-API#readme",
+  "homepage": "https://github.com/WithoutName48/MyFacebook#readme",
   "bugs": {
-    "url": "https://github.com/WithoutName48/MyFacebook-API/issues"
+    "url": "https://github.com/WithoutName48/MyFacebook/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WithoutName48/MyFacebook-API.git"
+    "url": "git+https://github.com/WithoutName48/MyFacebook.git"
   },
   "license": "ISC",
   "author": "",
   "type": "module",
   "main": "server.ts",
   "scripts": {
+    "clean": "rm -rf dist",
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'node --loader ts-node/esm' src/server.ts",
